@@ -1,615 +1,976 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>Snake Game</title>
-
-				<style>
-					• {
-					box-sizing: border-box;
-					}
-
-					body {
-					margin: 0;
-					font-family: Arial, sans-serif;
-					background: #101820;
-					color: white;
-					text-align: center;
-					}
-
-					header {
-					background: #172b3a;
-					padding: 15px;
-					}
-
-					h1 {
-					color: #ff6600;
-					margin: 5px;
-					}
-
-					nav {
-					display: flex;
-					justify-content: center;
-					gap: 8px;
-					flex-wrap: wrap;
-					margin: 15px;
-					}
-
-					button, select {
-					padding: 12px 16px;
-					border: none;
-					border-radius: 8px;
-					font-size: 16px;
-					cursor: pointer;
-					}
-
-					nav button {
-					background: #263d50;
-					color: white;
-					}
-
-					nav button:hover {
-					background: #365b70;
-					}
-
-					.page {
-					display: none;
-					padding: 15px;
-					}
-
-					.page.active {
-					display: block;
-					}
-
-					.main-button {
-					background: #39e75f;
-					color: #102016;
-					font-weight: bold;
-					margin: 8px;
-					}
-
-					.game-info {
-					display: flex;
-					justify-content: center;
-					gap: 25px;
-					flex-wrap: wrap;
-					margin: 15px;
-					font-size: 18px;
-					}
-
-					#gameCanvas {
-					display: block;
-					width: min(92vw, 400px);
-					height: min(92vw, 400px);
-					max-width: 400px;
-					max-height: 400px;
-					background: #07130d;
-					border: 3px solid #39e75f;
-					border-radius: 5px;
-					margin: 10px auto;
-					touch-action: none;
-					}
-
-					.controls {
-					display: grid;
-					grid-template-columns: 75px 75px 75px;
-					grid-template-rows: 65px 65px;
-					justify-content: center;
-					gap: 8px;
-					margin: 15px auto;
-					}
-
-					.controls button {
-					background: #263d50;
-					color: white;
-					font-size: 25px;
-					font-weight: bold;
-					touch-action: manipulation;
-					user-select: none;
-					-webkit-user-select: none;
-					}
-
-					.controls button:active {
-					background: #39e75f;
-					color: black;
-					}
-
-					.up {
-					grid-column: 2;
-					grid-row: 1;
-					}
-
-					.left {
-					grid-column: 1;
-					grid-row: 2;
-					}
-
-					.down {
-					grid-column: 2;
-					grid-row: 2;
-					}
-
-					.right {
-					grid-column: 3;
-					grid-row: 2;
-					}
-
-					#message {
-					color: #ffd166;
-					min-height: 25px;
-					font-weight: bold;
-					}
-
-					#scoresList {
-					max-width: 400px;
-					margin: 15px auto;
-					text-align: left;
-					}
-
-					.score-entry {
-					background: #263d50;
-					padding: 12px;
-					margin: 7px;
-					border-radius: 7px;
-					display: flex;
-					justify-content: space-between;
-					}
-
-					.instructions {
-					max-width: 500px;
-					margin: 20px auto;
-					line-height: 1.7;
-					color: #d4e1e8;
-					}
-
-					footer {
-					padding: 20px;
-					color: #9aabb8;
-					font-size: 13px;
-					}
-				</style>
-			</head>
-
-	<body>
-
-		<header>
-			<h1>🐍 SNAKE GAME</h1>
-			<p>Eat. Grow. Survive.</p>
-		</header>
-
-		<nav>
-			<button onclick="showPage('home')">Home</button>
-			<button onclick="showPage('play')">Play</button>
-			<button onclick="showPage('scores')">Scores</button>
-		</nav>
-
-		<!-- HOME PAGE -->
-		<section id="home" class="page active">
-
-			<h2>Welcome to Snake Game</h2>
-
-			<p>Control the snake, eat food and increase your score.</p>
-
-			<button class="main-button" onclick="startFromHome()">
-				START GAME
-			</button>
-
-			<div class="instructions">
-				<h3>How to play</h3>
-				<p>⬆️ Move upwards</p>
-				<p>⬇️ Move downwards</p>
-				<p>⬅️ Move left</p>
-				<p>➡️ Move right</p>
-				<p>Eat the red food to grow and earn points.</p>
-				<p>Avoid hitting the walls or your own body.</p>
-			</div>
-
-		</section>
-
-		<!-- PLAY PAGE -->
-		<section id="play" class="page">
-
-			<h2>Game Arena</h2>
-
-			<div class="game-info">
-				<div>
-					Score: <span id="score">0</span>
-				</div>
-				<div>
-					Best: <span id="bestScore">0</span>
-				</div>
-				<div>
-					Level: <span id="level">1</span>
-				</div>
-			</div>
-
-			<div>
-				<label for="difficulty">Difficulty:</label>
-				<select id="difficulty" onchange="changeDifficulty()">
-					<option value="easy">Easy</option>
-					<option value="normal" selected="">Normal</option>
-					<option value="hard">Hard</option>
-				</select>
-			</div>
-
-			<canvas id="gameCanvas" width="400" height="400"></canvas>
-
-			<p id="message">Press START to begin.</p>
-
-			<div>
-				<button class="main-button" id="startButton" onclick="startGame()">
-					START
-				</button>
-
-				<button class="main-button" onclick="pauseGame()">
-					PAUSE
-				</button>
-
-				<button class="main-button" onclick="restartGame()">
-					RESTART
-				</button>
-			</div>
-
-			<h3>Mobile Controls</h3>
-
-			<div class="controls">
-				<button class="up" onclick="changeDirection(0,-1)">⬆️</button>
-				<button class="left" onclick="changeDirection(-1,0)">⬅️</button>
-				<button class="down" onclick="changeDirection(0,1)">⬇️</button>
-				<button class="right" onclick="changeDirection(1,0)">➡️</button>
-			</div>
-
-			<button onclick="toggleSound()" id="soundButton">
-				Sound: ON
-			</button>
-
-		</section>
-
-		<!-- SCORES PAGE -->
-		<section id="scores" class="page">
-
-			<h2>🏆 Leaderboard</h2>
-
-			<p>Your best 10 scores on this device.</p>
-
-			<div id="scoresList"></div>
-
-			<button class="main-button" onclick="clearScores()">
-				Clear Scores
-			</button>
-
-		</section>
-
-		<footer>
-			Snake Game 3.0
-		</footer>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Snake Game - Play Free Online</title>
+<meta name="description" content="Play Snake Game free online. Eat, grow, survive and beat your high score. Works on mobile and desktop.">
+<meta name="theme-color" content="#101820">
+<meta property="og:title" content="Snake Game - Eat, Grow, Survive">
+<meta property="og:description" content="Play the classic Snake Game free online.">
+<meta property="og:type" content="website">
+
+<style>
+:root {
+--background: #101820;
+--panel: #172b3a;
+--panel2: #263d50;
+--green: #39e75f;
+--text: #ffffff;
+--muted: #b8c8d4;
+--yellow: #ffd166;
+}
+
+• {
+box-sizing: border-box;
+}
+
+body {
+margin: 0;
+background: var(--background);
+color: var(--text);
+font-family: Arial, sans-serif;
+text-align: center;
+}
+
+header {
+background: var(--panel);
+padding: 20px 10px;
+}
+
+header h1 {
+color: var(--green);
+margin: 5px;
+font-size: clamp(25px, 6vw, 36px);
+}
+
+header p {
+color: var(--muted);
+margin: 8px;
+}
+
+nav {
+display: flex;
+justify-content: center;
+flex-wrap: wrap;
+gap: 7px;
+padding: 12px;
+background: #132330;
+}
+
+button, select {
+font-size: 15px;
+padding: 12px 16px;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+}
+
+button:focus-visible, select:focus-visible, a:focus-visible {
+outline: 3px solid var(--yellow);
+outline-offset: 3px;
+}
+
+nav button {
+color: white;
+background: var(--panel2);
+}
+
+nav button:hover {
+background: #365b70;
+}
+
+.page {
+display: none;
+padding: 20px 12px;
+min-height: 65vh;
+}
+
+.page.active {
+display: block;
+}
+
+.main-button {
+background: var(--green);
+color: #102016;
+font-weight: bold;
+margin: 6px;
+}
+
+.main-button:hover {
+background: #80ff91;
+}
+
+.secondary-button {
+background: var(--panel2);
+color: white;
+margin: 6px;
+}
+
+.game-info {
+display: flex;
+justify-content: center;
+flex-wrap: wrap;
+gap: 25px;
+margin: 15px;
+font-size: 18px;
+}
+
+.stat {
+background: var(--panel);
+border-radius: 8px;
+padding: 10px 15px;
+min-width: 85px;
+}
+
+#gameCanvas {
+display: block;
+width: min(92vw, 400px);
+height: min(92vw, 400px);
+max-width: 400px;
+max-height: 400px;
+margin: 15px auto;
+background: #07130d;
+border: 3px solid var(--green);
+border-radius: 7px;
+touch-action: none;
+}
+
+#message {
+color: var(--yellow);
+min-height: 25px;
+font-weight: bold;
+}
+
+.controls {
+display: grid;
+grid-template-columns: 75px 75px 75px;
+grid-template-rows: 65px 65px;
+justify-content: center;
+gap: 8px;
+margin: 15px auto;
+}
+
+.controls button {
+background: var(--panel2);
+color: white;
+font-size: 25px;
+font-weight: bold;
+touch-action: manipulation;
+user-select: none;
+-webkit-user-select: none;
+}
+
+.controls button:active {
+background: var(--green);
+color: black;
+}
+
+.up {
+grid-column: 2;
+grid-row: 1;
+}
+
+.left {
+grid-column: 1;
+grid-row: 2;
+}
+
+.down {
+grid-column: 2;
+grid-row: 2;
+}
+
+.right {
+grid-column: 3;
+grid-row: 2;
+}
+
+.instructions, .text-page {
+max-width: 650px;
+margin: 20px auto;
+line-height: 1.7;
+color: var(--muted);
+}
+
+.text-page {
+text-align: left;
+}
+
+.text-page h2, .text-page h3 {
+text-align: center;
+color: white;
+}
+
+.ad-box {
+max-width: 400px;
+min-height: 90px;
+margin: 25px auto;
+padding: 20px;
+border: 1px dashed #4a6a80;
+border-radius: 8px;
+background: #1a2f3f;
+color: #9aabb8;
+font-size: 13px;
+}
+
+#scoresList {
+max-width: 450px;
+margin: 20px auto;
+}
+
+.score-entry {
+display: flex;
+justify-content: space-between;
+gap: 10px;
+background: var(--panel2);
+padding: 13px;
+margin: 7px;
+border-radius: 7px;
+}
+
+footer {
+padding: 25px 10px;
+background: #132330;
+color: var(--muted);
+font-size: 13px;
+line-height: 2;
+}
+
+footer a {
+color: var(--green);
+text-decoration: none;
+margin: 0 5px;
+}
+
+footer a:hover {
+text-decoration: underline;
+}
+
+.small {
+font-size: 13px;
+color: var(--muted);
+}
+
+@media (max-width: 420px) {
+nav button {
+padding: 10px;
+font-size: 13px;
+}
+
+.game-info {
+gap: 7px;
+}
+
+.stat {
+min-width: 75px;
+padding: 9px;
+font-size: 15px;
+}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🐍 SNAKE GAME</h1>
+<p>Eat. Grow. Survive.</p>
+</header>
+
+<nav>
+<button onclick="showPage('home')">Home</button>
+<button onclick="showPage('play')">Play</button>
+<button onclick="showPage('scores')">Scores</button>
+<button onclick="showPage('about')">About</button>
+<button onclick="showPage('privacy')">Privacy</button>
+<button onclick="showPage('contact')">Contact</button>
+</nav>
+
+<!-- HOME PAGE -->
+
+<section id="home" class="page active">
+
+<h2>Welcome to Snake Game</h2>
+
+<p>Control the snake, eat food and increase your score.</p>
+
+<button class="main-button" onclick="startFromHome()">
+PLAY NOW
+</button>
+
+<div class="ad-box">
+Advertisement space
+</div>
+
+<div class="instructions">
+
+<h3>How to play</h3>
+
+<p>⬆️ Move upwards</p>
+<p>⬇️ Move downwards</p>
+<p>⬅️ Move left</p>
+<p>➡️ Move right</p>
+
+<p>Eat the red food to grow and earn 10 points.</p>
+
+<p>Avoid hitting the walls or your own body.</p>
+
+<h3>Choose your challenge</h3>
+
+<p>
+Easy mode gives you more time to react.
+Normal mode provides a balanced challenge.
+Hard mode tests your reflexes.
+</p>
+
+</div>
+
+</section>
+
+<!-- PLAY PAGE -->
+
+<section id="play" class="page">
+
+<h2>Game Arena</h2>
+
+<div class="game-info">
+
+<div class="stat">
+Score: <strong id="score">0</strong>
+</div>
+
+<div class="stat">
+Best: <strong id="bestScore">0</strong>
+</div>
+
+<div class="stat">
+Level: <strong id="level">1</strong>
+</div>
+
+</div>
+
+<p>
+<label for="difficulty">Difficulty:</label>
+
+<select id="difficulty" onchange="changeDifficulty()">
+<option value="easy">Easy</option>
+<option value="normal" selected>Normal</option>
+<option value="hard">Hard</option>
+</select>
+</p>
+
+<canvas
+id="gameCanvas"
+width="400"
+height="400"
+aria-label="Snake game playing area">
+</canvas>
+
+<p id="message" aria-live="polite">
+Press START to begin.
+</p>
+
+<div>
+
+<button
+class="main-button"
+id="startButton"
+onclick="startGame()">
+START
+</button>
+
+<button
+class="secondary-button"
+onclick="pauseGame()">
+PAUSE
+</button>
+
+<button
+class="secondary-button"
+onclick="restartGame()">
+RESTART
+</button>
+
+</div>
+
+<div class="ad-box">
+Advertisement space
+</div>
+
+<h3>Mobile Controls</h3>
+
+<div class="controls">
+
+<button class="up" onclick="changeDirection(0,-1)">
+⬆️
+</button>
+
+<button class="left" onclick="changeDirection(-1,0)">
+⬅️
+</button>
+
+<button class="down" onclick="changeDirection(0,1)">
+⬇️
+</button>
+
+<button class="right" onclick="changeDirection(1,0)">
+➡️
+</button>
+
+</div>
+
+<p class="small">
+You can also swipe directly on the game screen.
+</p>
+
+<button
+class="secondary-button"
+id="soundButton"
+onclick="toggleSound()">
+Sound: ON
+</button>
+
+</section>
+
+<!-- SCORES PAGE -->
+
+<section id="scores" class="page">
+
+<h2>🏆 Leaderboard</h2>
+
+<p>Your best 10 scores on this device.</p>
+
+<div id="scoresList"></div>
+
+<button class="main-button" onclick="clearScores()">
+Clear Scores
+</button>
+
+<p class="small">
+Scores are stored in this browser on this device.
+</p>
+
+</section>
+
+<!-- ABOUT PAGE -->
+
+<section id="about" class="page">
+
+<div class="text-page">
+
+<h2>About Snake Game</h2>
+
+<p>
+Snake Game is a free online arcade game inspired
+by the classic snake games enjoyed around the world.
+</p>
+
+<p>
+This game is made by William Kajuna from
+Kampala, Uganda.
+</p>
+
+<p>
+Our goal is to provide a simple, enjoyable and
+accessible gaming experience on modern phones
+and computers.
+</p>
+
+<p>
+Play, improve your skills and challenge your
+highest score!
+</p>
+
+</div>
 
-		<script>
+</section>
+
+<!-- PRIVACY PAGE -->
 
-			// =====================================
-			// 1. GAME SETTINGS
-			// =====================================
+<section id="privacy" class="page">
 
-			const canvas = document.getElementById("gameCanvas");
-			const ctx = canvas.getContext("2d");
+<div class="text-page">
 
-			const gridSize = 20;
-			const tileCount = canvas.width / gridSize;
+<h2>Privacy Policy</h2>
 
-			let snake;
-			let food;
+<p>Last updated: November 2026</p>
 
-			let dx = 1;
-			let dy = 0;
+<h3>Information collection</h3>
 
-			let nextDx = 1;
-			let nextDy = 0;
+<p>
+This standalone game does not request your name,
+email address or password.
+</p>
 
-			let score = 0;
-			let level = 1;
+<h3>Game scores</h3>
 
-			let started = false;
-			let running = false;
-			let gameOver = false;
+<p>
+Your high scores and leaderboard entries are
+stored locally in your browser using localStorage.
+They are not automatically sent to a server.
+</p>
 
-			let gameTimer = null;
-			let soundEnabled = true;
+<h3>Cookies and advertising</h3>
 
-			let highScore = Number(
-			localStorage.getItem("snakeHighScore") || 0
-			);
+<p>
+This version contains advertising placeholders
+only. No advertising network is connected by
+this HTML file.
+</p>
 
-			document.getElementById("bestScore").textContent = highScore;
+<p>
+If advertising services or analytics are added
+in the future, this policy must be updated to
+explain the information those services collect
+and how they use it.
+</p>
 
-			// =====================================
-			// 2. DIFFICULTY
-			// =====================================
+<h3>Contact</h3>
 
-			function getBaseSpeed() {
+<p>
+For privacy questions, use the contact information
+on our Contact page.
+</p>
 
-			const difficulty =
-			document.getElementById("difficulty").value;
+</div>
 
-			if (difficulty === "easy") return 190;
+</section>
 
-			if (difficulty === "hard") return 85;
+<!-- CONTACT PAGE -->
 
-			return 130;
-			}
+<section id="contact" class="page">
 
-			function getSpeed() {
+<div class="text-page">
 
-			return Math.max(
-			55,
-			getBaseSpeed() - (level - 1) * 8
-			);
-			}
+<h2>Contact Us</h2>
 
-			function changeDifficulty() {
+<p>
+Have a question, suggestion or found a bug?
+</p>
 
-			if (running) {
-			clearTimeout(gameTimer);
-			gameTimer = setTimeout(gameLoop, getSpeed());
-			}
-			}
+<p>
+We would love to hear from you.
+</p>
 
-			// =====================================
-			// 3. INITIALISE GAME
-			// =====================================
+<p>
+<strong>Email:</strong>
+<a href="mailto:kajunawilliam99@gmail.com">
+kajunawilliam99@gmail.com
+</a>
+</p>
 
-			function resetGame() {
+<p>
+<strong>Location:</strong> Kampala, Uganda
+</p>
 
-			clearTimeout(gameTimer);
+</div>
 
-			snake = [
-			{x: 10, y: 10},
-			{x: 9, y: 10},
-			{x: 8, y: 10}
-			];
+</section>
 
-			dx = 1;
-			dy = 0;
+<footer>
 
-			nextDx = 1;
-			nextDy = 0;
+<a href="#" onclick="showPage('about'); return false;">
+About
+</a>
 
-			score = 0;
-			level = 1;
+|
 
-			started = false;
-			running = false;
-			gameOver = false;
+<a href="#" onclick="showPage('privacy'); return false;">
+Privacy Policy
+</a>
 
-			generateFood();
+|
 
-			updateDisplay();
-			drawGame();
+<a href="#" onclick="showPage('contact'); return false;">
+Contact
+</a>
 
-			document.getElementById("message").textContent =
-			"Press START to begin.";
+<br>
 
-			document.getElementById("startButton").textContent =
-			"START";
-			}
+Snake Game 4.0 - Made in Kampala, Uganda
 
-			// =====================================
-			// 4. FOOD GENERATION
-			// =====================================
+</footer>
 
-			function generateFood() {
+<script>
 
-			const freeCells = [];
+// ========================================
+// 1. GAME ENGINE VARIABLES
+// ========================================
 
-			for (let y = 0; y < tileCount; y++) {
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+const gridSize = 20;
+const tileCount = canvas.width / gridSize;
+
+let snake = [];
+let food = null;
+
+let dx = 1;
+let dy = 0;
+
+let nextDx = 1;
+let nextDy = 0;
+
+let score = 0;
+let level = 1;
+
+let gameState = "ready";
+
+let gameTimer = null;
+let soundEnabled = true;
+
+let highScore = 0;
+
+try {
+highScore = Number(
+localStorage.getItem("snakeHighScore") || 0
+);
+} catch (error) {
+highScore = 0;
+}
+
+// ========================================
+// 2. STORAGE FUNCTIONS
+// ========================================
+
+function getScores() {
+
+try {
+const saved = JSON.parse(
+localStorage.getItem("snakeScores") || "[]"
+);
+
+return Array.isArray(saved) ? saved : [];
+
+} catch (error) {
+return [];
+}
+}
+
+function saveData(key, value) {
+
+try {
+localStorage.setItem(
+key,
+JSON.stringify(value)
+);
+
+return true;
+
+} catch (error) {
+return false;
+}
+}
+
+function updateBestScore() {
+
+document.getElementById("bestScore").textContent =
+highScore;
+}
+
+// ========================================
+// 3. DIFFICULTY AND SPEED
+// ========================================
+
+function getBaseSpeed() {
+
+const difficulty =
+document.getElementById("difficulty").value;
+
+if (difficulty === "easy") return 190;
+
+if (difficulty === "hard") return 85;
+
+return 130;
+}
+
+function getSpeed() {
+
+return Math.max(
+50,
+getBaseSpeed() - (level - 1) * 8
+);
+}
+
+function changeDifficulty() {
+
+if (gameState === "running") {
+
+clearTimeout(gameTimer);
+
+gameTimer = setTimeout(
+gameLoop,
+getSpeed()
+);
+}
+}
+
+// ========================================
+// 4. RESET AND INITIALISE
+// ========================================
+
+function resetGame() {
+
+clearTimeout(gameTimer);
+
+snake = [
+{x: 10, y: 10},
+{x: 9, y: 10},
+{x: 8, y: 10}
+ ];
+
+dx = 1;
+dy = 0;
+
+nextDx = 1;
+nextDy = 0;
+
+score = 0;
+level = 1;
+
+gameState = "ready";
+
+generateFood();
+
+updateDisplay();
+drawGame();
+
+document.getElementById("message").textContent =
+"Press START to begin.";
+
+document.getElementById("startButton").textContent =
+"START";
+}
+
+// ========================================
+// 5. FOOD GENERATION
+// ========================================
+
+function generateFood() {
+
+const freeCells = [];
+
+for (let y = 0; y < tileCount; y++) {
 
 for (let x = 0; x < tileCount; x++) {
 
 const occupied = snake.some(
 part => part.x === x && part.y === y
-			);
+);
 
-			if (!occupied) {
-			freeCells.push({x, y});
-			}
-			}
-			}
+if (!occupied) {
+freeCells.push({x, y});
+}
+}
+}
 
-			if (freeCells.length === 0) {
-			endGame(true);
-			return;
-			}
+if (freeCells.length === 0) {
 
-			food = freeCells[
-			Math.floor(Math.random() * freeCells.length)
-			];
-			}
+endGame(true);
 
-			// =====================================
-			// 5. DRAW THE GAME
-			// =====================================
+return;
+}
 
-			function drawGame() {
+food = freeCells[
+Math.floor(Math.random() * freeCells.length)
+ ];
+}
 
-			ctx.fillStyle = "#07130d";
+// ========================================
+// 6. DRAWING
+// ========================================
 
-			ctx.fillRect(
-			0, 0,
-			canvas.width,
-			canvas.height
-			);
+function drawGame() {
 
-			// Draw grid
+ctx.fillStyle = "#07130d";
 
-			ctx.strokeStyle = "#14271b";
-			ctx.lineWidth = 1;
+ctx.fillRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
 
-			for (let i = 0; i <= tileCount; i++) {
+// Draw grid
 
-			ctx.beginPath();
+ctx.strokeStyle = "#14271b";
+ctx.lineWidth = 1;
 
-			ctx.moveTo(i * gridSize, 0);
-			ctx.lineTo(i * gridSize, canvas.height);
+for (let i = 0; i <= tileCount; i++) {
 
-			ctx.stroke();
+ctx.beginPath();
 
-			ctx.beginPath();
+ctx.moveTo(i * gridSize, 0);
+ctx.lineTo(i * gridSize, canvas.height);
 
-			ctx.moveTo(0, i * gridSize);
-			ctx.lineTo(canvas.width, i * gridSize);
+ctx.stroke();
 
-			ctx.stroke();
-			}
+ctx.beginPath();
 
-			// Draw food
+ctx.moveTo(0, i * gridSize);
+ctx.lineTo(canvas.width, i * gridSize);
 
-			if (food) {
+ctx.stroke();
+}
 
-			ctx.fillStyle = "#ff3030";
+// Draw food
 
-			ctx.beginPath();
+if (food) {
 
-			ctx.arc(
-			food.x * gridSize + gridSize / 2,
-			food.y * gridSize + gridSize / 2,
-			gridSize / 2 - 2,
-			0,
-			Math.PI * 2
-			);
+ctx.fillStyle = "#ff3030";
 
-			ctx.fill();
-			}
+ctx.beginPath();
 
-			// Draw snake
+ctx.arc(
+food.x * gridSize + gridSize / 2,
+food.y * gridSize + gridSize / 2,
+gridSize / 2 - 2,
+0,
+Math.PI * 2
+);
 
-			snake.forEach((part, index) => {
+ctx.fill();
+}
 
-			ctx.fillStyle =
-			index === 0 ? "#b5ff00" : "#39e75f";
+// Draw snake
 
-			ctx.fillRect(
-			part.x * gridSize + 1,
-			part.y * gridSize + 1,
-			gridSize - 2,
-			gridSize - 2
-			);
-			});
-			}
+snake.forEach((part, index) => {
 
-			// =====================================
-			// 6. MOVEMENT CONTROLS
-			// =====================================
+ctx.fillStyle =
+index === 0 ? "#b5ff00" : "#39e75f";
 
-			function changeDirection(nx, ny) {
+ctx.fillRect(
+part.x * gridSize + 1,
+part.y * gridSize + 1,
+gridSize - 2,
+gridSize - 2
+);
+});
 
-			if (!started || gameOver) return;
+}
 
-			// Prevent reversing directly into the snake
+// ========================================
+// 7. MOVEMENT CONTROLS
+// ========================================
 
-			if (nx === -nextDx && ny === -nextDy) {
-			return;
-			}
+function changeDirection(nx, ny) {
 
-			nextDx = nx;
-			nextDy = ny;
-			}
+if (gameState !== "running") return;
 
-			// Keyboard controls
+// Prevent a direct 180-degree reversal
 
-			document.addEventListener("keydown", function(event) {
+if (nx === -dx && ny === -dy) {
+return;
+}
 
-			const key = event.key;
+nextDx = nx;
+nextDy = ny;
+}
 
-			if ([
-			"ArrowUp",
-			"ArrowDown",
-			"ArrowLeft",
-			"ArrowRight",
-			" "
-			].includes(key)) {
-			event.preventDefault();
-			}
+// Keyboard controls
 
-			if (key === "ArrowUp" || key.toLowerCase() === "w") {
-			changeDirection(0, -1);
-			}
+document.addEventListener("keydown", function(event) {
 
-			else if (key === "ArrowDown" || key.toLowerCase() === "s") {
-			changeDirection(0, 1);
-			}
+const key = event.key.toLowerCase();
 
-			else if (key === "ArrowLeft" || key.toLowerCase() === "a") {
-			changeDirection(-1, 0);
-			}
+const playPage = document.getElementById("play");
 
-			else if (key === "ArrowRight" || key.toLowerCase() === "d") {
-			changeDirection(1, 0);
-			}
+if (!playPage.classList.contains("active")) {
+return;
+}
 
-			else if (key === " ") {
-			pauseGame();
-			}
-			});
+if ([
+"arrowup",
+"arrowdown",
+"arrowleft",
+"arrowright",
+" "
+ ].includes(key)) {
+event.preventDefault();
+}
 
-			// =====================================
-			// 7. MOBILE SWIPE CONTROLS
-			// =====================================
+if (key === "arrowup" || key === "w") {
+changeDirection(0, -1);
+}
 
-			let touchStartX = 0;
-			let touchStartY = 0;
+else if (key === "arrowdown" || key === "s") {
+changeDirection(0, 1);
+}
 
-			canvas.addEventListener("touchstart", function(event) {
+else if (key === "arrowleft" || key === "a") {
+changeDirection(-1, 0);
+}
 
-			if (!event.touches.length) return;
+else if (key === "arrowright" || key === "d") {
+changeDirection(1, 0);
+}
 
-			touchStartX = event.touches[0].clientX;
-			touchStartY = event.touches[0].clientY;
+else if (key === " ") {
 
-			}, {passive: true});
+if (gameState === "running") {
+pauseGame();
+} else {
+startGame();
+}
+}
 
-			canvas.addEventListener("touchend", function(event) {
+});
 
-			if (!event.changedTouches.length) return;
+// ========================================
+// 8. MOBILE SWIPE CONTROLS
+// ========================================
 
-			const touchEndX = event.changedTouches[0].clientX;
-			const touchEndY = event.changedTouches[0].clientY;
+let touchStartX = 0;
+let touchStartY = 0;
 
-			const differenceX = touchEndX - touchStartX;
-			const differenceY = touchEndY - touchStartY;
+canvas.addEventListener("pointerdown", function(event) {
 
-			if (
-			Math.abs(differenceX) < 15 &&
-			Math.abs(differenceY) < 15
+touchStartX = event.clientX;
+touchStartY = event.clientY;
+
+});
+
+canvas.addEventListener("pointerup", function(event) {
+
+const differenceX = event.clientX - touchStartX;
+const differenceY = event.clientY - touchStartY;
+
+if (
+Math.abs(differenceX) < 15 &&
+Math.abs(differenceY) < 15
 ) {
 return;
 }
 
 if (Math.abs(differenceX) > Math.abs(differenceY)) {
 
-if (differenceX > 0) {
-changeDirection(1, 0);
-} else {
-changeDirection(-1, 0);
-}
+changeDirection(
+differenceX > 0 ? 1 : -1,
+0
+);
 
 } else {
 
-if (differenceY > 0) {
-changeDirection(0, 1);
-} else {
-changeDirection(0, -1);
-}
+changeDirection(
+0,
+differenceY > 0 ? 1 : -1
+);
 }
 
-}, {passive: true});
+});
 
-// =====================================
-// 8. GAME LOOP
-// =====================================
+// ========================================
+// 9. GAME LOOP
+// ========================================
 
 function gameLoop() {
 
-if (!running || gameOver) return;
+if (gameState !== "running") return;
+
+// Apply the latest direction
 
 dx = nextDx;
 dy = nextDy;
@@ -621,346 +982,407 @@ y: snake[0].y + dy
 
 const eating =
 head.x === food.x &&
-			head.y === food.y;
+head.y === food.y;
 
-			// Wall collision
+// Wall collision
 
-			if (
-			head.x < 0 ||
+if (
+head.x < 0 ||
 head.x >= tileCount ||
 head.y < 0 ||
 head.y >= tileCount
 ) {
+
 endGame();
+
 return;
 }
 
-// Self collision
-// Moving into the tail's current cell is allowed
-// if the snake is not eating during this move.
+// Check body collision.
+// The tail moves away on a normal move,
+// so it is excluded unless food is being eaten.
 
 const bodyToCheck = eating
 ? snake
 : snake.slice(0, -1);
 
 const collision = bodyToCheck.some(
-part => part.x === head.x && part.y === head.y
-			);
+part =>
+part.x === head.x &&
+part.y === head.y
+);
 
-			if (collision) {
-			endGame();
-			return;
-			}
+if (collision) {
 
-			// Move snake
+endGame();
 
-			snake.unshift(head);
+return;
+}
 
-			if (eating) {
+// Move snake
 
-			score += 10;
+snake.unshift(head);
 
-			level = Math.floor(score / 50) + 1;
+if (eating) {
 
-			playSound(600);
+score += 10;
 
-			generateFood();
+level = Math.floor(score / 50) + 1;
 
-			if (gameOver) return;
+playSound(600);
 
-			} else {
+generateFood();
 
-			snake.pop();
-			}
+if (gameState !== "running") {
+return;
+}
 
-			updateDisplay();
-			drawGame();
+} else {
 
-			gameTimer = setTimeout(gameLoop, getSpeed());
-			}
+snake.pop();
+}
 
-			// =====================================
-			// 9. START, PAUSE AND RESTART
-			// =====================================
+updateDisplay();
 
-			function startGame() {
+drawGame();
 
-			if (gameOver || !started) {
-			resetGame();
-			}
+gameTimer = setTimeout(
+gameLoop,
+getSpeed()
+);
+}
 
-			if (running) return;
+// ========================================
+// 10. START AND RESUME
+// ========================================
 
-			started = true;
-			running = true;
+function startGame() {
 
-			document.getElementById("message").textContent =
-			"Game running!";
+if (gameState === "running") return;
 
-			document.getElementById("startButton").textContent =
-			"RESUME";
+if (
+gameState === "ready" ||
+gameState === "over"
+) {
+if (gameState === "over") {
+resetGame();
+}
+}
 
-			gameLoop();
-			}
+gameState = "running";
 
-			function pauseGame() {
+document.getElementById("message").textContent =
+"Game running!";
 
-			if (!started || gameOver || !running) return;
+document.getElementById("startButton").textContent =
+"RESUME";
 
-			running = false;
+gameLoop();
+}
 
-			clearTimeout(gameTimer);
+// ========================================
+// 11. PAUSE
+// ========================================
 
-			document.getElementById("message").textContent =
-			"Game paused.";
+function pauseGame() {
 
-			document.getElementById("startButton").textContent =
-			"RESUME";
-			}
+if (gameState !== "running") return;
 
-			function restartGame() {
+gameState = "paused";
 
-			resetGame();
-			startGame();
-			}
+clearTimeout(gameTimer);
 
-			function startFromHome() {
+document.getElementById("message").textContent =
+"Game paused. Press RESUME to continue.";
 
-			showPage("play");
-			resetGame();
-			startGame();
-			}
+document.getElementById("startButton").textContent =
+"RESUME";
+}
 
-			// =====================================
-			// 10. GAME OVER
-			// =====================================
+// ========================================
+// 12. RESTART
+// ========================================
 
-			function endGame(won = false) {
+function restartGame() {
 
-			running = false;
-			started = false;
-			gameOver = true;
+resetGame();
 
-			clearTimeout(gameTimer);
+startGame();
+}
 
-			saveScore();
+function startFromHome() {
 
-			if (won) {
+showPage("play");
 
-			document.getElementById("message").textContent =
-			"🏆 You filled the entire board! You win!";
+resetGame();
 
-			} else {
+startGame();
+}
 
-			document.getElementById("message").textContent =
-			"Game Over! Your score: " + score;
-			}
+// ========================================
+// 13. GAME OVER
+// ========================================
 
-			document.getElementById("startButton").textContent =
-			"PLAY AGAIN";
+function endGame(won = false) {
 
-			playSound(180);
-			}
+if (
+gameState === "over"
+) {
+return;
+}
 
-			// =====================================
-			// 11. SCORE DISPLAY
-			// =====================================
+gameState = "over";
 
-			function updateDisplay() {
+clearTimeout(gameTimer);
 
-			document.getElementById("score").textContent = score;
+saveScore();
 
-			document.getElementById("level").textContent = level;
+if (won) {
 
-			document.getElementById("bestScore").textContent =
-			highScore;
-			}
+document.getElementById("message").textContent =
+"🏆 You filled the entire board! You win!";
 
-			// =====================================
-			// 12. LEADERBOARD
-			// =====================================
+} else {
 
-			function getScores() {
+document.getElementById("message").textContent =
+"Game Over! Your score: " + score;
+}
 
-			try {
-			return JSON.parse(
-			localStorage.getItem("snakeScores") || "[]"
-			);
-			} catch (error) {
-			return [];
-			}
-			}
+document.getElementById("startButton").textContent =
+"PLAY AGAIN";
 
-			function saveScore() {
+playSound(180);
+}
 
-			if (score <= 0) return;
+// ========================================
+// 14. SCORE DISPLAY
+// ========================================
 
-			const scores = getScores();
+function updateDisplay() {
 
-			scores.push({
-			score: score,
-			date: new Date().toLocaleDateString()
-			});
+document.getElementById("score").textContent =
+score;
 
-			scores.sort((a, b) => b.score - a.score);
+document.getElementById("level").textContent =
+level;
 
-			const topScores = scores.slice(0, 10);
+updateBestScore();
+}
 
-			localStorage.setItem(
-			"snakeScores",
-			JSON.stringify(topScores)
-			);
+// ========================================
+// 15. SAVE SCORES
+// ========================================
 
-			if (score > highScore) {
+function saveScore() {
 
-			highScore = score;
+if (score <= 0) return;
 
-			localStorage.setItem(
-			"snakeHighScore",
-			highScore
-			);
-			}
+const scores = getScores();
 
-			updateDisplay();
-			displayScores();
-			}
+scores.push({
+score: score,
+date: new Date().toLocaleDateString()
+});
 
-			function displayScores() {
+scores.sort((a, b) => b.score - a.score);
 
-			const scores = getScores();
+const topTen = scores.slice(0, 10);
 
-			const list = document.getElementById("scoresList");
+saveData("snakeScores", topTen);
 
-			list.innerHTML = "";
+if (score > highScore) {
 
-			if (scores.length === 0) {
+highScore = score;
 
-			list.innerHTML = "<p>No scores yet. Play a game first!</p>";
+try {
+localStorage.setItem(
+"snakeHighScore",
+String(highScore)
+);
+} catch (error) {
+// The game continues if storage is unavailable.
+}
+}
 
-			return;
-			}
+updateDisplay();
 
-			scores.forEach((entry, index) => {
+displayScores();
+}
 
-			const item = document.createElement("div");
+// ========================================
+// 16. DISPLAY LEADERBOARD
+// ========================================
 
-			item.className = "score-entry";
+function displayScores() {
 
-			const position = document.createElement("span");
-			position.textContent = (index + 1) + ". " + entry.date;
+const scores = getScores();
 
-			const points = document.createElement("strong");
-			points.textContent = entry.score + " points";
+const list = document.getElementById("scoresList");
 
-			item.appendChild(position);
-			item.appendChild(points);
+list.innerHTML = "";
 
-			list.appendChild(item);
-			});
-			}
+if (scores.length === 0) {
 
-			function clearScores() {
+list.textContent =
+"No scores yet. Play your first game!";
 
-			const confirmed = confirm(
-			"Are you sure you want to clear all saved scores?"
-			);
+return;
+}
 
-			if (!confirmed) return;
+scores.forEach((entry, index) => {
 
-			localStorage.removeItem("snakeScores");
-			localStorage.removeItem("snakeHighScore");
+const item = document.createElement("div");
 
-			highScore = 0;
+item.className = "score-entry";
 
-			updateDisplay();
-			displayScores();
-			}
+const position = document.createElement("span");
 
-			// =====================================
-			// 13. SOUND EFFECTS
-			// =====================================
+position.textContent =
+(index + 1) + ". " + entry.date;
 
-			function playSound(frequency) {
+const points = document.createElement("strong");
 
-			if (!soundEnabled) return;
+points.textContent =
+entry.score + " points";
 
-			try {
+item.appendChild(position);
+item.appendChild(points);
 
-			const AudioContext =
-			window.AudioContext ||
-			window.webkitAudioContext;
+list.appendChild(item);
+});
+}
 
-			if (!AudioContext) return;
+// ========================================
+// 17. CLEAR LEADERBOARD
+// ========================================
 
-			const audio = new AudioContext();
+function clearScores() {
 
-			const oscillator = audio.createOscillator();
+const confirmed = confirm(
+"Are you sure you want to delete all saved scores?"
+);
 
-			const gain = audio.createGain();
+if (!confirmed) return;
 
-			oscillator.connect(gain);
-			gain.connect(audio.destination);
+try {
+localStorage.removeItem("snakeScores");
+localStorage.removeItem("snakeHighScore");
+} catch (error) {
+// Continue updating the screen.
+}
 
-			oscillator.frequency.value = frequency;
+highScore = 0;
 
-			oscillator.type = "sine";
+updateDisplay();
 
-			gain.gain.setValueAtTime(
-			0.15,
-			audio.currentTime
-			);
+displayScores();
+}
 
-			gain.gain.exponentialRampToValueAtTime(
-			0.001,
-			audio.currentTime + 0.15
-			);
+// ========================================
+// 18. SOUND EFFECTS
+// ========================================
 
-			oscillator.start();
+function playSound(frequency) {
 
-			oscillator.stop(audio.currentTime + 0.15);
+if (!soundEnabled) return;
 
-			oscillator.onended = function() {
-			audio.close();
-			};
+try {
 
-			} catch (error) {
-			// Sound is optional; the game continues without it.
-			}
-			}
+const AudioContext =
+window.AudioContext ||
+window.webkitAudioContext;
 
-			function toggleSound() {
+if (!AudioContext) return;
 
-			soundEnabled = !soundEnabled;
+const audio = new AudioContext();
 
-			document.getElementById("soundButton").textContent =
-			soundEnabled ? "Sound: ON" : "Sound: OFF";
-			}
+const oscillator = audio.createOscillator();
 
-			// =====================================
-			// 14. PAGE NAVIGATION
-			// =====================================
+const gain = audio.createGain();
 
-			function showPage(pageName) {
+oscillator.connect(gain);
 
-			document.querySelectorAll(".page").forEach(page => {
-			page.classList.remove("active");
-			});
+gain.connect(audio.destination);
 
-			document.getElementById(pageName).classList.add("active");
+oscillator.type = "sine";
 
-			if (pageName === "scores") {
-			displayScores();
-			}
-			}
+oscillator.frequency.value = frequency;
 
-			// =====================================
-			// 15. INITIAL GAME DISPLAY
-			// =====================================
+gain.gain.setValueAtTime(
+0.15,
+audio.currentTime
+);
 
-			resetGame();
-			displayScores();
+gain.gain.exponentialRampToValueAtTime(
+0.001,
+audio.currentTime + 0.15
+);
 
-		</script>
+oscillator.start();
 
-	</body>
+oscillator.stop(
+audio.currentTime + 0.15
+);
+
+oscillator.onended = function() {
+audio.close();
+};
+
+} catch (error) {
+// Sound is optional.
+}
+}
+
+function toggleSound() {
+
+soundEnabled = !soundEnabled;
+
+document.getElementById("soundButton").textContent =
+soundEnabled ? "Sound: ON" : "Sound: OFF";
+}
+
+// ========================================
+// 19. PAGE NAVIGATION
+// ========================================
+
+function showPage(pageName) {
+
+if (
+pageName !== "play" &&
+gameState === "running"
+) {
+pauseGame();
+}
+
+document.querySelectorAll(".page").forEach(page => {
+
+page.classList.remove("active");
+
+});
+
+const selectedPage =
+document.getElementById(pageName);
+
+if (!selectedPage) return;
+
+selectedPage.classList.add("active");
+
+if (pageName === "scores") {
+displayScores();
+}
+}
+
+// ========================================
+// 20. INITIALISE WEBSITE
+// ========================================
+
+resetGame();
+
+displayScores();
+
+updateBestScore();
+
+</script>
+
+</body>
 </html>
